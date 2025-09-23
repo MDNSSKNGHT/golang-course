@@ -1,9 +1,22 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"os"
+	"strconv"
+)
+
+const defaultAccountBalance = 1000
+const accountBalanceFilename = "balance.txt"
 
 func main() {
-	accountBalance := 1000.0
+	accountBalance, err := getBalanceFromFile()
+	if err != nil {
+		fmt.Println("ERROR")
+		fmt.Println(err)
+		fmt.Println("-----")
+	}
 
 	for loop := true; loop; {
 		fmt.Println("Welcome to Go Bank!")
@@ -33,6 +46,7 @@ func main() {
 			}
 
 			accountBalance += depositAmount
+			writeBalanceToFile(accountBalance)
 			fmt.Println("Balance updated! New account balance:", accountBalance)
 		case 3:
 			fmt.Print("Amount to withdraw: ")
@@ -51,6 +65,7 @@ func main() {
 			}
 
 			accountBalance -= withdrawAmount
+			writeBalanceToFile(accountBalance)
 			fmt.Println("Balance updated! New account balance:", accountBalance)
 		default:
 			fmt.Println("Thanks for vising Go Bank!")
@@ -58,4 +73,25 @@ func main() {
 		}
 		fmt.Println()
 	}
+}
+
+func writeBalanceToFile(balance float64) {
+	balanceAsStr := fmt.Sprint(balance)
+
+	os.WriteFile(accountBalanceFilename, []byte(balanceAsStr), 0644)
+}
+
+func getBalanceFromFile() (float64, error) {
+	data, err := os.ReadFile(accountBalanceFilename)
+	if err != nil {
+		return defaultAccountBalance, errors.New("Failed to find balance file.")
+	}
+	balanceAsStr := string(data)
+
+	balanceAsFloat64, err := strconv.ParseFloat(balanceAsStr, 64)
+	if err != nil {
+		return defaultAccountBalance, errors.New("Failed to parse balance value.")
+	}
+
+	return balanceAsFloat64, nil
 }
