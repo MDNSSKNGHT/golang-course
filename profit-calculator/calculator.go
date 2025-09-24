@@ -1,11 +1,28 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 func main() {
-	revenue := promptForFloatingValue("Revenue")
-	expenses := promptForFloatingValue("Expenses")
-	taxRate := promptForFloatingValue("Tax Rate")
+	revenue, err := promptForFloatingValue("Revenue")
+	if err != nil {
+		printError(err)
+		return
+	}
+
+	expenses, err := promptForFloatingValue("Expenses")
+	if err != nil {
+		printError(err)
+		return
+	}
+
+	taxRate, err := promptForFloatingValue("Tax Rate")
+	if err != nil {
+		printError(err)
+		return
+	}
 
 	earningsBeforeTax, earningsAfterTax, ratio := calculateEarningsAndRatio(revenue, expenses, taxRate)
 
@@ -14,13 +31,23 @@ func main() {
 	fmt.Printf("Ratio: %.2f\n", ratio)
 }
 
-func promptForFloatingValue(prompt string) float64 {
+func printError(err error) {
+	fmt.Println("-----")
+	fmt.Printf("ERROR: %v\n", err)
+	fmt.Println("-----")
+}
+
+func promptForFloatingValue(prompt string) (float64, error) {
 	var value float64
 
 	fmt.Printf("%s: ", prompt)
 	fmt.Scan(&value)
 
-	return value
+	if value <= 0 {
+		return 0, errors.New("Value must be greater than 0.")
+	}
+
+	return value, nil
 }
 
 func calculateEarningsAndRatio(revenue, expenses, taxRate float64) (float64, float64, float64) {
