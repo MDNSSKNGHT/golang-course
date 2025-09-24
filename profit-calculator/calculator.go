@@ -3,7 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 )
+
+const profitCalculatorFilename = "calculations.txt"
 
 func main() {
 	revenue, err := promptForFloatingValue("Revenue")
@@ -29,12 +32,22 @@ func main() {
 	fmt.Printf("Earnings Before Tax: %.2f\n", earningsBeforeTax)
 	fmt.Printf("Earnings After Tax: %.2f\n", earningsAfterTax)
 	fmt.Printf("Ratio: %.2f\n", ratio)
+	writeCalculationsToFile(earningsBeforeTax, earningsAfterTax, ratio)
 }
 
 func printError(err error) {
 	fmt.Println("-----")
 	fmt.Printf("ERROR: %v\n", err)
 	fmt.Println("-----")
+}
+
+func writeCalculationsToFile(earningsBeforeTax, earningsAfterTax, ratio float64) {
+	line1 := fmt.Sprintf("Earnings Before Tax: %.2f\n", earningsBeforeTax)
+	line2 := fmt.Sprintf("Earnings After Tax: %.2f\n", earningsAfterTax)
+	line3 := fmt.Sprintf("Ratio: %.2f\n", ratio)
+	fileContents := fmt.Sprintf("%s%s%s", line1, line2, line3)
+
+	os.WriteFile(profitCalculatorFilename, []byte(fileContents), 0644)
 }
 
 func promptForFloatingValue(prompt string) (float64, error) {
